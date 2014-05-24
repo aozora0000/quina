@@ -1,0 +1,11 @@
+-----
+vars:
+  title: main title
+  summary: main summary
+md: enable=true some=thing
+layout:
+  nann: dakana
+
+----
+
+this is main yml

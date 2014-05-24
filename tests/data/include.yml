@@ -1,0 +1,12 @@
+-----
+include: _main.yml
+md: mura=saki
+layout:
+  test: desu
+vars:
+  title: include test
+  summary: this is include test
+
+-----
+
+test

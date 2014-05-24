@@ -1,0 +1,19 @@
+{
+    "name": "mikakane/quina",
+    "description": "quina",
+    "require": {
+        "symfony/yaml": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "mikakane",
+            "email": "mikakane2@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Quina": "src/"
+        }
+    }
+
+}
