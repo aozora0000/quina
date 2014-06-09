@@ -8,32 +8,8 @@ use Symfony\Component\Yaml\Yaml;
  * Date: 2014/05/09
  * Time: 20:32
  */
-//
-//if ( ! function_exists('spyc_load'))
-//{
-//    import('spyc/spyc', 'vendor');
-//}
 
-class Quina {
-
-    /**
-     * @var \Quina\Config
-     */
-    static protected $config = null;
-
-    /**
-     * @var \Callable
-     */
-    static protected $logger = null;
-
-    public static function __callStatic($name, $arguments)
-    {
-        $class = static::loadModule($name);
-        return call_user_func_array($class."::callStatic",$arguments);
-    }
-
-
-    #region Config DI Section
+class Quina extends Quina\Container{
 
     static public function init($configClass,$sitename=null){
         if((is_object($configClass)) && ($configClass instanceof Config))
@@ -47,28 +23,6 @@ class Quina {
         }
     }
 
-    static public function getConfig($key,$default=null){
-        if(static::$config){
-            return static::$config->getItem($key,$default);
-        }else{
-            throw new Exception("call init method before use Quina");
-        }
-    }
-
-
-
-    static public function getConfigRequired($key){
-        $salt = sha1(mt_rand(10000000,90000000));
-        $value = static::getConfig($key,$salt);
-        if($value === $salt){
-            throw new Exception("required config $key not set");
-        }
-        return $value;
-    }
-
-    #endregion
-
-    #region Logger DI Section
 
     static public function setLogger($logger){
         if(is_callable($logger)){
@@ -77,15 +31,6 @@ class Quina {
             throw new \Exception("uncallable logger injected");
         }
     }
-
-    static public function log(){
-        if(static::$logger){
-            $callable = static::$logger;
-            $callable(func_get_args());
-        }
-    }
-
-    #endregion
 
     static public function version(){
         return static::getCoreConfig("version");
@@ -198,109 +143,17 @@ class Quina {
         return $rtn;
     }
 
-    /**
-     * モジュールのクラス名を返す。
-     * @param $className
-     * @return string
-     * @throws \Exception
-     */
-    static protected function loadModule($moduleName){
-        $className = null;
-        $moduleMap = array_merge(static::getCoreConfig("moduleMap"),static::getConfig("moduleMap",[]));
-        if(isset($moduleMap[$moduleName])){
-            $className = $moduleMap[$moduleName];
-        }elseif(class_exists(ucfirst($moduleName))){
-            $className = ucfirst($moduleName);
-        }else{
-            foreach(static::getConfig("moduleNS",[]) as $ns){
-                if(class_exists("{$ns}$moduleName")){
-                    $className = "{$ns}$moduleName";
-                    break;
-                }
-            }
-        }
-
-//        if($moduleName==="apple"){
-//            var_dump($className);
-//            exit;
-//        }
-
-        if($className && is_subclass_of($className,"\\Quina\\Driver")){
-            return $className;
-        }else{
-            throw new \Exception("module $moduleName not found");
-        }
-    }
-
-
-    public $modules = [];
 
     protected $restContent = null;
 
     public function __construct($param,$rest=null){
         $this->restContent = $rest;
 
-//        foreach(static::getConfig("before",[]) as $moduleName){
-//            if(isset($param[$moduleName])){
-//                $this->registerModule($moduleName,static::parseParam($param[$moduleName]));
-//                unset($param[$moduleName]);
-//            }
-//        }
         foreach($param as $moduleName => $p){
             $this->registerModule($moduleName,static::parseParam($p));
         }
     }
 
-    public function registerModule($moduleName,$params){
-        $moduleClass = static::loadModule($moduleName);
-        $this->modules[$moduleName] = $moduleClass::loadModule($this,$params);
-    }
-
-    public function setMeta($param){
-        $this->registerModule("meta",$param);
-    }
-
-    public function __get($name){
-        return $this->get($name);
-    }
-
-    public function __set($name,$value){
-        return $this->set($name,$value);
-    }
-
-    function __call($name, $arguments)
-    {
-        try{
-            if( ($module = $this->getModule($name)) && is_callable($module)){
-                return call_user_func_array($module,$arguments);
-            }else{
-            }
-
-        }catch (\Exception $e){
-
-        }
-        // TODO: Implement __call() method.
-    }
-
-
-    public function get($name){
-        $vars = $this->getModule("vars");
-        return $vars->$name;
-    }
-
-
-    public function set($name,$value){
-        $vars = $this->getModule("vars");
-        return $vars->$name = $value;
-    }
-
-    public function getModule($name){
-        if(isset($this->modules[$name])){
-            return $this->modules[$name];
-        }else{
-            throw new \Exception("the module $name dont exist");
-        }
-    }
 
     public function getRestContent(){
         return $this->restContent;
@@ -310,30 +163,6 @@ class Quina {
         $this->restContent = $data;
     }
 
-//    public function url($segment=""){
-//        $url = static::getConfig("url");
-//        if($url instanceof \Closure){
-//            $url = $url($this);
-//        }
-//        $segment = $segment?:$this->meta["key"];
-//        return $url . $segment;
-//    }
-
-    public function toArray($includeModules = true){
-        $vars = $this->getModule("vars")->toArray();
-
-        if($includeModules){
-            $modules = [];
-            foreach($this->modules as $moduleName => $moduleObject){
-                if(!$moduleObject->arrayFilter()){
-                    $modules[$moduleName] = $moduleObject->getParams();
-                }
-            }
-            $vars["_module"] = $modules;
-        }
-
-        return $vars;
-    }
 }
 
 class Exception extends \Exception{}

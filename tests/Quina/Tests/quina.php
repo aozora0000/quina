@@ -23,23 +23,9 @@ class QuinaTest extends \PHPUnit_Framework_TestCase{
         ];
     }
 
-//    /**
-//     * @dataProvider configKeyProvider
-//     * @expectedException \Quina\Exception
-//     */
-//    public function test_initFirst($key,$value){
-//        Quina::getConfig($key);
-//    }
-//
-//    /**
-//     * @dataProvider configKeyProvider
-//     * @expectedException \Quina\Exception
-//     */
-//    public function test_initFirstRequire($key,$value){
-//        Quina::getConfigRequired($key);
-//    }
-
     /**
+     * Configから値が適切に取得できるかのテスト
+     *
      * @dataProvider configKeyProvider
      */
     public function test_getConfig($key,$value){

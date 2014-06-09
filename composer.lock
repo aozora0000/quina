@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "c89660e2347b5efc47d1b17258276490",
+    "hash": "00cff0342ecd42c5817a364579cf5b64",
     "packages": [
         {
             "name": "symfony/yaml",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "d151f00d4fae107ea0d70ade6b0d2d3e81f45ecd"
+                "reference": "b01d366060f33e18fd98b0008c41a01b0d25c95c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/d151f00d4fae107ea0d70ade6b0d2d3e81f45ecd",
-                "reference": "d151f00d4fae107ea0d70ade6b0d2d3e81f45ecd",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/b01d366060f33e18fd98b0008c41a01b0d25c95c",
+                "reference": "b01d366060f33e18fd98b0008c41a01b0d25c95c",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2014-05-23 14:36:49"
+            "time": "2014-06-04 06:43:44"
         }
     ],
     "packages-dev": [
