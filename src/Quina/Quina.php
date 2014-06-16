@@ -1,6 +1,5 @@
 <?php
 namespace Quina;
-use Symfony\Component\Yaml\Yaml;
 
     /**
  * Created by PhpStorm.
@@ -41,42 +40,22 @@ class Quina extends Quina\Container{
         return $data[$key];
     }
 
-    /**
-     * Yamlを読み込む
-     * @param $path
-     * @return static
-     */
-    static public function loadFromYaml($path){
-        $start = microtime(true);
-        list($yaml,$rest) = static::loadYaml($path);
-        $obj = new static($yaml,$rest);
-        $basePath = static::getConfigRequired("basePath");
-        $obj->setMeta([
-            "key" => $path,
-            "type" => "yaml",
-            "path" => $basePath.$path.".yml",
-            "updatedAt" => filemtime($basePath.$path.".yml"),
-            "createdAt" => filectime($basePath.$path.".yml"),
-            "start" => $start
-        ]);
-        return $obj;
-    }
 
-    /**
-     * 配列からの生成
-     * @param $param
-     * @return static
-     */
-    static public function loadFromArray($param){
-        $start = microtime(true);
-        $obj = new static($param);
-        $obj->setMeta([
-            "type" => "array",
-            "path" => $param,
-            "start" => $start
-        ]);
-        return $obj;
-    }
+//    /**
+//     * 配列からの生成
+//     * @param $param
+//     * @return static
+//     */
+//    static public function loadFromArray($param){
+//        $start = microtime(true);
+//        $obj = new static($param);
+//        $obj->setMeta([
+//            "type" => "array",
+//            "path" => $param,
+//            "start" => $start
+//        ]);
+//        return $obj;
+//    }
 
     /**
      * 単純なYAMLの読み込み
@@ -85,49 +64,49 @@ class Quina extends Quina\Container{
      * @return array [YAML展開結果,残りのドキュメント]
      * @throws \Exception
      */
-    static protected function loadYaml($path,$ext=".yml"){
-        $path = static::getConfigRequired("basePath").$path.$ext;
-        if(file_exists($path)){
-            $data = file_get_contents($path);
-            $data = preg_split("#^-{3}(.*)$#m",$data,2,PREG_SPLIT_NO_EMPTY);
-            list($yaml,$rest) = $data + ["",""];
-            $yaml = Yaml::parse($yaml);
-            foreach($yaml as $key => $value){
-                $yaml[$key] = static::parseParam($value);
-            }
-            if(isset($yaml["include"])){
-                $includeList = $yaml["include"];
-                $includeYaml = [];
-                $includeYamlKeys = [];
-                foreach($includeList as $include){
-                    $_yaml = static::loadYaml($include,"")[0];
-                    $includeYaml[] = $_yaml;
-                    $includeYamlKeys = array_merge($includeYamlKeys,array_keys($_yaml));
-                }
-                $includeYaml[] = $yaml;
-                $includeYamlKeys = array_merge($includeYamlKeys,array_keys($yaml));
-                unset($includeYamlKeys["include"]);
-                $yaml = call_user_func_array(function()use($includeYamlKeys){
-                    $rtn = [];
-                    $args = func_get_args();
-                    foreach($includeYamlKeys as $key){
-                        $_include = [];
-                        foreach($args as $_arg){
-                            $_include[] = isset($_arg[$key])?$_arg[$key]:[];
-                        }
-                        $rtn[$key] = call_user_func_array("array_merge",$_include);
-                    }
-                    return $rtn;
-                },$includeYaml);
-                unset($yaml["include"]);
-            }
-            return [$yaml,$rest];
-        }else{
-            throw new \Exception("file not found: $path");
-        }
-    }
+//    static protected function loadYaml($path,$ext=".yml"){
+//        $path = static::getConfigRequired("basePath").$path.$ext;
+//        if(file_exists($path)){
+//            $data = file_get_contents($path);
+//            $data = preg_split("#^-{3}(.*)$#m",$data,2,PREG_SPLIT_NO_EMPTY);
+//            list($yaml,$rest) = $data + ["",""];
+//            $yaml = Yaml::parse($yaml);
+//            foreach($yaml as $key => $value){
+//                $yaml[$key] = static::parseParam($value);
+//            }
+//            if(isset($yaml["include"])){
+//                $includeList = $yaml["include"];
+//                $includeYaml = [];
+//                $includeYamlKeys = [];
+//                foreach($includeList as $include){
+//                    $_yaml = static::loadYaml($include,"")[0];
+//                    $includeYaml[] = $_yaml;
+//                    $includeYamlKeys = array_merge($includeYamlKeys,array_keys($_yaml));
+//                }
+//                $includeYaml[] = $yaml;
+//                $includeYamlKeys = array_merge($includeYamlKeys,array_keys($yaml));
+//                unset($includeYamlKeys["include"]);
+//                $yaml = call_user_func_array(function()use($includeYamlKeys){
+//                    $rtn = [];
+//                    $args = func_get_args();
+//                    foreach($includeYamlKeys as $key){
+//                        $_include = [];
+//                        foreach($args as $_arg){
+//                            $_include[] = isset($_arg[$key])?$_arg[$key]:[];
+//                        }
+//                        $rtn[$key] = call_user_func_array("array_merge",$_include);
+//                    }
+//                    return $rtn;
+//                },$includeYaml);
+//                unset($yaml["include"]);
+//            }
+//            return [$yaml,$rest];
+//        }else{
+//            throw new \Exception("file not found: $path");
+//        }
+//    }
 
-    static protected function parseParam($paramString){
+    static public function parseParam($paramString){
         if(is_array($paramString)){
             return $paramString;
         }
@@ -142,27 +121,6 @@ class Quina extends Quina\Container{
         }
         return $rtn;
     }
-
-
-    protected $restContent = null;
-
-    public function __construct($param,$rest=null){
-        $this->restContent = $rest;
-
-        foreach($param as $moduleName => $p){
-            $this->registerModule($moduleName,static::parseParam($p));
-        }
-    }
-
-
-    public function getRestContent(){
-        return $this->restContent;
-    }
-
-    public function setRestContent($data){
-        $this->restContent = $data;
-    }
-
 }
 
 class Exception extends \Exception{}

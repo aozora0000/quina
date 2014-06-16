@@ -11,15 +11,15 @@ namespace Quina;
 
 abstract class Driver {
 
-    /**
-     * ファクトリ
-     * @param Quina $quina
-     * @param array $params
-     * @return static
-     */
-    static function loadModule(Quina $quina,array $params){
-        return new static($quina,$params);
-    }
+//    /**
+//     * ファクトリ
+//     * @param Quina $quina
+//     * @param array $params
+//     * @return static
+//     */
+//    static function loadModule(Quina $quina,$calledName){
+//        return new static($quina,$calledName);
+//    }
 
     static function callStatic(){}
 
@@ -28,26 +28,23 @@ abstract class Driver {
      * @var \Quina\Quina
      */
     protected $quina;
-
     /**
      * @var array
      */
-    protected $params;
+    protected $calledName;
 
-    protected $arrayFilter = false;
-
-    public function __construct($quina,$params){
+    public function __construct($quina,$calledName){
         $this->quina = $quina;
-        $this->params = $params;
+        $this->calledName = $calledName;
     }
+
+    function __invoke()
+    {
+        return $this;
+    }
+
 
     public function getParams(){
-        return $this->params;
+        return $this->quina->getModuleParam($this->calledName);
     }
-
-    public function arrayFilter(){
-        return (bool) $this->arrayFilter;
-    }
-
-
 }

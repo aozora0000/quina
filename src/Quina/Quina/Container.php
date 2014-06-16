@@ -32,7 +32,7 @@ class Container {
         $salt = sha1(mt_rand(10000000,90000000));
         $value = static::getConfig($key,$salt);
         if($value === $salt){
-            throw new Exception("required config $key not set");
+            throw new \Exception("required config $key not set");
         }
         return $value;
     }
@@ -46,8 +46,12 @@ class Container {
 
     public static function __callStatic($name, $arguments)
     {
-        $class = static::loadModule($name);
-        return call_user_func_array($class."::callStatic",$arguments);
+        try{
+            $class = static::loadModule($name);
+            return call_user_func_array($class."::callStatic",$arguments);
+        }catch (\Exception $e){
+            throw new \Exception("Invalid static method call. ",255,$e);
+        }
     }
 
     /**
@@ -56,7 +60,7 @@ class Container {
      * @return string
      * @throws \Exception
      */
-    static protected function loadModule($moduleName){
+    static protected function getModuleClassName($moduleName){
         $className = null;
         $moduleMap = array_merge(static::getCoreConfig("moduleMap"),static::getConfig("moduleMap",[]));
         if(isset($moduleMap[$moduleName])){
@@ -80,11 +84,11 @@ class Container {
     }
 
 
+    public $_data = [];
     public $modules = [];
 
-    public function registerModule($moduleName,$params){
-        $moduleClass = static::loadModule($moduleName);
-        $this->modules[$moduleName] = $moduleClass::loadModule($this,$params);
+    public function __construct($param){
+        $this->_data = $param;
     }
 
     public function __get($name){
@@ -97,16 +101,15 @@ class Container {
 
     function __call($name, $arguments)
     {
-//        try{
-        if( ($module = $this->getModule($name)) && is_callable($module)){
-            return call_user_func_array($module,$arguments);
-        }else{
-            throw new \Exception("invalid method call exception");
+        try{
+            if( ($module = $this->getModule($name)) && is_callable($module)){
+                return call_user_func_array($module,$arguments);
+            }else{
+                throw new \Exception("invalid method call exception");
+            }
+        }catch (\Exception $e){
+            throw $e;
         }
-//
-//        }catch (\Exception $e){
-//
-//        }
     }
 
 
@@ -122,11 +125,29 @@ class Container {
     }
 
     public function getModule($name){
-        if(isset($this->modules[$name])){
-            return $this->modules[$name];
-        }else{
-            throw new \Exception("the module dont exist");
+        if(empty($this->modules[$name])){
+            $this->modules[$name] = $this->registerModule($name);
         }
+        return $this->modules[$name];
+    }
+
+    public function registerModule($moduleName){
+        $moduleClass = static::getModuleClassName($moduleName);
+//        if(empty($this->_data[$moduleName])){
+//            $params = [];
+//        }else{
+//            $params = (array)$this->_data[$moduleName];
+//        }
+        return new $moduleClass($this,$moduleName);
+    }
+
+    public function getModuleParam($moduleName){
+        if(empty($this->_data[$moduleName])){
+            $params = [];
+        }else{
+            $params = (array)$this->_data[$moduleName];
+        }
+        return $params;
     }
 
     public function toArray($includeModules = true){
