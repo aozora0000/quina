@@ -11,16 +11,6 @@ namespace Quina;
 
 abstract class Driver {
 
-//    /**
-//     * ファクトリ
-//     * @param Quina $quina
-//     * @param array $params
-//     * @return static
-//     */
-//    static function loadModule(Quina $quina,$calledName){
-//        return new static($quina,$calledName);
-//    }
-
     static function callStatic(){}
 
 
