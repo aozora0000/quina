@@ -10,6 +10,7 @@ return [
     "version" => "0.1",
     "moduleMap" => [
         "vars" => "\\Quina\\Driver\\Vars",
+        "producer" => "\\Quina\\Driver\\Producer",
         "meta" => "\\Quina\\Driver\\Meta"
     ]
 
