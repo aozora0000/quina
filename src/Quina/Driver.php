@@ -28,6 +28,20 @@ abstract class Driver {
         $this->calledName = $calledName;
     }
 
+    public function __get($key){
+        return $this->get($key);
+    }
+
+    public function get($key,$default=null){
+        $params = $this->getParams();
+        if(isset($params[$key])){
+            return $params[$key];
+        }else{
+            return $default;
+        }
+    }
+
+
     function __invoke()
     {
         return $this;

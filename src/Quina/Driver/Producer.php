@@ -23,22 +23,22 @@ namespace Quina\Driver;
 class Producer extends \Quina\Driver{
 
     protected $data;
-    /**
-     * @param $key
-     */
-    public function set($key,$category,$created_at,$updated_at){
-        $data = array_combine(["key","category","created_at","updated_at"],func_get_args());
-
-        $this->data = $data;
-    }
-
-    public function get($key,$default=null){
-        if(empty($this->data["$key"])){
-            return $default;
-        }else{
-            return $this->data[$key];
-        }
-    }
+//    /**
+//     * @param $key
+//     */
+//    public function set($key,$category,$created_at,$updated_at){
+//        $data = array_combine(["key","category","created_at","updated_at"],func_get_args());
+//
+//        $this->data = $data;
+//    }
+//
+//    public function get($key,$default=null){
+//        if(empty($this->data["$key"])){
+//            return $default;
+//        }else{
+//            return $this->data[$key];
+//        }
+//    }
 
     protected function _getDate($key,$fomat){
         $ts = strtotime($this->get($key));
