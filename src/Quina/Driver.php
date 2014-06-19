@@ -49,6 +49,8 @@ abstract class Driver {
 
 
     public function getParams(){
-        return $this->quina->getModuleParam($this->calledName);
+        $configValue = Quina::getConfig("m:{$this->calledName}",[]);
+        $passedValue =  $this->quina->getModuleParam($this->calledName);
+        return array_merge($configValue,$passedValue);
     }
 }

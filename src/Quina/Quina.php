@@ -22,7 +22,6 @@ class Quina extends Quina\Container{
         }
     }
 
-
     static public function setLogger($logger){
         if(is_callable($logger)){
             static::$logger = $logger;
@@ -39,6 +38,18 @@ class Quina extends Quina\Container{
         $data = include __DIR__."/../../config/quina.php";
         return $data[$key];
     }
+
+    static public function addHook($hookKey,$callable){
+        $hooks = static::getHooks($hookKey);
+        $hooks = array_merge($hooks,[$callable]);
+        static::setConfig("h:$hookKey",$hooks);
+    }
+
+    static public function getHooks($hookKey){
+        return static::getConfig("h:$hookKey",[]);
+    }
+
+
 
 
 //    /**
@@ -121,6 +132,18 @@ class Quina extends Quina\Container{
         }
         return $rtn;
     }
+
+    public function __construct($param)
+    {
+        parent::__construct($param);
+        $preload = (array)static::getConfig("preload",[]);
+        \Fuel\Core\Profiler::console($preload);
+        foreach($preload as $module){
+            $this->getModule($module);
+        }
+    }
+
+
 }
 
 class Exception extends \Exception{}

@@ -27,6 +27,13 @@ class Container {
             throw new Exception("call init method before use Quina");
         }
     }
+    static public function setConfig($key,$value){
+        if(static::$config){
+            return static::$config->setItem($key,$value);
+        }else{
+            throw new Exception("call init method before use Quina");
+        }
+    }
 
     static public function getConfigRequired($key){
         $salt = sha1(mt_rand(10000000,90000000));
@@ -40,7 +47,7 @@ class Container {
     static public function log(){
         if(static::$logger){
             $callable = static::$logger;
-            $callable(func_get_args());
+            call_user_func_array($callable,func_get_args());
         }
     }
 

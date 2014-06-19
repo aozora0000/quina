@@ -25,4 +25,12 @@ interface Config {
 //    public function get();
 
     public function getItem($key,$default=null);
-} 
+
+    /**
+     * 値の格納
+     * @param $key
+     * @param null $default
+     * @return mixed
+     */
+    public function setItem($key,$value);
+}
