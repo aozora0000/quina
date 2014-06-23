@@ -49,74 +49,6 @@ class Quina extends Quina\Container{
         return static::getConfig("h:$hookKey",[]);
     }
 
-
-
-
-//    /**
-//     * 配列からの生成
-//     * @param $param
-//     * @return static
-//     */
-//    static public function loadFromArray($param){
-//        $start = microtime(true);
-//        $obj = new static($param);
-//        $obj->setMeta([
-//            "type" => "array",
-//            "path" => $param,
-//            "start" => $start
-//        ]);
-//        return $obj;
-//    }
-
-    /**
-     * 単純なYAMLの読み込み
-     * @param $path フルパス or baseからの相対
-     * @param string $ext
-     * @return array [YAML展開結果,残りのドキュメント]
-     * @throws \Exception
-     */
-//    static protected function loadYaml($path,$ext=".yml"){
-//        $path = static::getConfigRequired("basePath").$path.$ext;
-//        if(file_exists($path)){
-//            $data = file_get_contents($path);
-//            $data = preg_split("#^-{3}(.*)$#m",$data,2,PREG_SPLIT_NO_EMPTY);
-//            list($yaml,$rest) = $data + ["",""];
-//            $yaml = Yaml::parse($yaml);
-//            foreach($yaml as $key => $value){
-//                $yaml[$key] = static::parseParam($value);
-//            }
-//            if(isset($yaml["include"])){
-//                $includeList = $yaml["include"];
-//                $includeYaml = [];
-//                $includeYamlKeys = [];
-//                foreach($includeList as $include){
-//                    $_yaml = static::loadYaml($include,"")[0];
-//                    $includeYaml[] = $_yaml;
-//                    $includeYamlKeys = array_merge($includeYamlKeys,array_keys($_yaml));
-//                }
-//                $includeYaml[] = $yaml;
-//                $includeYamlKeys = array_merge($includeYamlKeys,array_keys($yaml));
-//                unset($includeYamlKeys["include"]);
-//                $yaml = call_user_func_array(function()use($includeYamlKeys){
-//                    $rtn = [];
-//                    $args = func_get_args();
-//                    foreach($includeYamlKeys as $key){
-//                        $_include = [];
-//                        foreach($args as $_arg){
-//                            $_include[] = isset($_arg[$key])?$_arg[$key]:[];
-//                        }
-//                        $rtn[$key] = call_user_func_array("array_merge",$_include);
-//                    }
-//                    return $rtn;
-//                },$includeYaml);
-//                unset($yaml["include"]);
-//            }
-//            return [$yaml,$rest];
-//        }else{
-//            throw new \Exception("file not found: $path");
-//        }
-//    }
-
     static public function parseParam($paramString){
         if(is_array($paramString)){
             return $paramString;
@@ -137,7 +69,6 @@ class Quina extends Quina\Container{
     {
         parent::__construct($param);
         $preload = (array)static::getConfig("preload",[]);
-        \Fuel\Core\Profiler::console($preload);
         foreach($preload as $module){
             $this->getModule($module);
         }

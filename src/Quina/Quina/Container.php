@@ -24,14 +24,14 @@ class Container {
         if(static::$config){
             return static::$config->getItem($key,$default);
         }else{
-            throw new Exception("call init method before use Quina");
+            throw new \Exception("call init method before use Quina");
         }
     }
     static public function setConfig($key,$value){
         if(static::$config){
             return static::$config->setItem($key,$value);
         }else{
-            throw new Exception("call init method before use Quina");
+            throw new \Exception("call init method before use Quina");
         }
     }
 
@@ -54,9 +54,14 @@ class Container {
     public static function __callStatic($name, $arguments)
     {
         try{
-            $class = static::loadModule($name);
-            return call_user_func_array($class."::callStatic",$arguments);
+            $class = static::getModuleClassName($name);
+            if(is_callable($class."::callStatic")){
+                return call_user_func_array($class."::callStatic",$arguments);
+            }else{
+                throw new \Exception("Invalid static method call. ",255,$e);
+            }
         }catch (\Exception $e){
+            throw $e;
             throw new \Exception("Invalid static method call. ",255,$e);
         }
     }
