@@ -9,22 +9,10 @@
 namespace Quina;
 
 
-abstract class Driver {
+abstract class Module {
 
     static protected $name;
 
-    static public function getConfig($key=null,$default = null){
-        $name = static::$name;
-        $configValue = Quina::getConfig("m:{$name}",[]);
-        if(func_num_args()){
-            return \Arr::get($configValue,$key,$default);
-        }else{
-            return $configValue;
-        }
-    }
-
-
-//    static public function callStatic(){}
     /**
      * @var \Quina\Quina
      */
@@ -52,16 +40,16 @@ abstract class Driver {
         }
     }
 
-
     function __invoke()
     {
         return $this;
     }
 
-    public function getParams($key=null,$default=null){
-        $configValue = static::getConfig();
+    public function getParams($key=null,$default=null)
+    {
+//        $configValue = static::getConfig();
         $passedValue =  $this->quina->getModuleParam($this->calledName);
-        $params = array_merge($configValue,$passedValue);
+        $params = array_merge($passedValue);
         if(func_num_args()){
             return \Arr::get($params,$key,$default);
         }else{

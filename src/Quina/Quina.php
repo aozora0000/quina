@@ -8,73 +8,89 @@ namespace Quina;
  * Time: 20:32
  */
 
-class Quina extends Quina\Container{
+abstract class Quina extends Container{
 
-    static public function init($configClass,$sitename=null){
-        if((is_object($configClass)) && ($configClass instanceof Config))
-        {
-            static::$config = $configClass;
-        }elseif((is_string($configClass))&& (is_subclass_of($configClass,"\\Quina\\Config")))
-        {
-            static::$config = $configClass::init($sitename);
-        }else{
-            throw new Exception("invalid argument");
-        }
-    }
 
-    static public function setLogger($logger){
-        if(is_callable($logger)){
-            static::$logger = $logger;
-        }else{
-            throw new \Exception("uncallable logger injected");
-        }
-    }
+    /**
+     * @var array
+     */
+    static protected $moduleParam = [];
+    /**
+     * @var \Quina\Loader
+     */
+    static protected $moduleLoader = [];
 
-    static public function version(){
-        return static::getCoreConfig("version");
-    }
+    static protected $instances = [];
 
-    static public function getCoreConfig($key=null){
-        $data = include __DIR__."/../../config/quina.php";
-        return $data[$key];
-    }
-
-    static public function addHook($hookKey,$callable){
-        $hooks = static::getHooks($hookKey);
-        $hooks = array_merge($hooks,[$callable]);
-        static::setConfig("h:$hookKey",$hooks);
-    }
-
-    static public function getHooks($hookKey){
-        return static::getConfig("h:$hookKey",[]);
-    }
-
-    static public function parseParam($paramString){
-        if(is_array($paramString)){
-            return $paramString;
-        }
-        $rtn = [];
-        $params = array_filter(explode(" ",$paramString));
-        foreach($params as $p){
-            if(($p = explode("=",$p)) && count($p) === 2){
-                $rtn[$p[0]] = $p[1];
-            }else{
-                $rtn[]= $p[0];
-            }
-        }
-        return $rtn;
-    }
-
-    public function __construct($param)
+    public static function __callStatic($name, $arguments)
     {
-        parent::__construct($param);
-        $preload = (array)static::getConfig("preload",[]);
-        foreach($preload as $module){
-            $this->getModule($module);
+        return static::getInstance()->$name();
+    }
+
+    static public function getInstance($key = null){
+        if($key){
+            $i = static::$instances[$key];
+        }else{
+            $i = reset(static::$instances);
         }
+        if($i instanceof static){
+            return $i;
+        }else{
+            \Profiler::console(static::$instances);
+            throw new \Exception("no valid instance returned");
+        }
+    }
+
+    static public function init(array $moduleParam,array $moduleMap){
+        static::$moduleParam = $moduleParam;
+        static::$moduleLoader = new Loader($moduleMap);
+        static::$instances[] = new static();
+    }
+
+    public $modules = [];
+
+    public function __construct($param=[])
+    {
+        parent::__construct(array_merge(static::$moduleParam,$param));
+    }
+
+    function __call($name, $arguments)
+    {
+        try{
+            if( ($module = $this->getModule($name)) && is_callable($module)){
+                return call_user_func_array($module,$arguments);
+            }else{
+                \Profiler::console("test");
+                \Profiler::console($module);
+                throw new \Exception("invalid method call exception");
+            }
+        }catch (\Exception $e){
+            throw $e;
+        }
+    }
+
+
+    public function registerModule($moduleName){
+        return static::$moduleLoader->load($moduleName,$this);
+    }
+
+    public function getModule($name){
+        if(empty($this->modules[$name])){
+            $this->modules[$name] = $this->registerModule($name);
+        }
+        return $this->modules[$name];
+    }
+
+    public function getModuleParam($moduleName){
+        if(empty($this->_data[$moduleName])){
+            $params = [];
+        }else{
+            $params = (array)$this->_data[$moduleName];
+        }
+        return $params;
     }
 
 
 }
 
-class Exception extends \Exception{}
+//class Exception extends \Exception{}
