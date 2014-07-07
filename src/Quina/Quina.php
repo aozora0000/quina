@@ -41,9 +41,15 @@ abstract class Quina extends Container{
         }
     }
 
-    static public function init(array $moduleParam,array $moduleMap){
+    /**
+     * 第一引数はモジュールのデフォルトパラメータ
+     * 第二引数はモジュールマップに渡すパラメータ
+     * @param array $moduleParam
+     * @param array $moduleMap
+     */
+    static public function init(array $moduleParam,\Quina\Loader $loader){
         static::$moduleParam = $moduleParam;
-        static::$moduleLoader = new Loader($moduleMap);
+        static::$moduleLoader = $loader;
         static::$instances[] = new static();
     }
 
