@@ -34,6 +34,8 @@ class Collection extends Container{
     }
 
     public function uasort(\Closure $callable){
-        uasort($this,$callable);
+        $data = $this->toArray();
+        uasort($data,$callable);
+        return new static($data);
     }
 }
