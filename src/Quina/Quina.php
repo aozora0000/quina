@@ -36,7 +36,6 @@ abstract class Quina extends Container{
         if($i instanceof static){
             return $i;
         }else{
-            \Profiler::console(static::$instances);
             throw new \Exception("no valid instance returned");
         }
     }
@@ -66,8 +65,6 @@ abstract class Quina extends Container{
             if( ($module = $this->getModule($name)) && is_callable($module)){
                 return call_user_func_array($module,$arguments);
             }else{
-                \Profiler::console("test");
-                \Profiler::console($module);
                 throw new \Exception("invalid method call exception");
             }
         }catch (\Exception $e){

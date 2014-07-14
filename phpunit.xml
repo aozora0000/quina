@@ -6,7 +6,7 @@
         bootstrap="./tests/bootstrap.php">
     <testsuites>
         <testsuite name="Quina">
-            <directory suffix=".php">./tests/Quina/Tests</directory>
+            <directory suffix=".php">./tests/src/Quina/Test</directory>
         </testsuite>
     </testsuites>
 </phpunit>

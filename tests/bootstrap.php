@@ -6,8 +6,6 @@
  * Time: 23:43
  */
 
-require __DIR__."/../vendor/autoload.php";
-require __DIR__ . "/src/Tests/Config.php";
-require __DIR__ . "/src/Tests/Apple.php";
+require __DIR__."/../../../autoload.php";
 
 
